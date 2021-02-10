@@ -2,33 +2,12 @@
 #include <avr/interrupt.h>
 #include "matrix.h"
 #include "joystick.h"
+#include "display_consts.h"
 
 #define NULL 0
 #define TCD1_AUTOMOVE_PER (6500)
 
-const uint8_t collide_wall_image[8] =
-{
-	0b11111111,
-	0b00000000,
-	0b00000000,
-	0b00000000,
-	0b00000000,
-	0b00000000,
-	0b00000000,
-	0b11111111
-};
 
-const uint8_t collide_self_image[8] = 
-{
-	0b10000001,
-	0b10000001,
-	0b10000001,
-	0b10000001,
-	0b10000001,
-	0b10000001,
-	0b10000001,
-	0b10000001	
-};
 
 // Matrix values
 volatile uint8_t led_matrix[8];
@@ -48,7 +27,7 @@ struct point
 	volatile point* next;
 };
 
-volatile struct point snake[10];
+volatile struct point snake[64];
 volatile struct point *head;
 volatile struct point *tail;
 uint8_t length;
@@ -73,6 +52,8 @@ void automove_init(void);
 void display_image(const uint8_t image[]);
 uint8_t in_snake(int8_t x, int8_t y);
 void apple_init(void);
+void apple_new(void);
+void display_score(uint8_t score);
 
 int main(void)
 {
@@ -102,15 +83,26 @@ int main(void)
 		{
 			input = get_direction();
 		}
+		/*
 		if (collide == 1)
 			display_image(collide_wall_image);
 		else if (collide == 2)
 			display_image(collide_self_image);
 		input = get_direction();
+		*/
+		
+		// Disabling automove
+		TCD1.INTCTRLA = TC_OVFINTLVL_OFF_gc;
+		
+		display_score(length-3);
+
+		input = get_direction();
+		
 		if (input != 0)
 		{
 			collide = 0;
 			snake_init();
+			automove_init();
 		}
 	}
 }
@@ -159,7 +151,7 @@ char get_direction()
 void snake_init()
 {
 	// Initialize all values to -1
-	for (uint8_t i = 0; i < 10; i++)
+	for (uint8_t i = 0; i < 64; i++)
 	{
 		snake[i].x = -1;
 		snake[i].y = -1;
@@ -175,30 +167,23 @@ void snake_init()
 	snake[1].next = &snake[2];
 	snake[2].x = 2;
 	snake[2].y = 3;
-	snake[2].next = &snake[3];
-	snake[3].x = 3;
-	snake[3].y = 3;
-	snake[3].next = &snake[4];
-	snake[4].x = 4;
-	snake[4].y = 3;
-	snake[4].next = &snake[5];
-	snake[5].x = 5;
-	snake[5].y = 3;
 
 	// Initialize head and tail
 	tail = &snake[0];
-	head = &snake[5];
+	head = &snake[2];
 	
-	length = 6;
+	length = 3;
 	
 	movedir = 'r';
+	
+	apple_init();
 }
 
 // Draw snake on LED Matrix
 void draw_snake()
 {	
 	// Draw snake
-	for (uint8_t i = 0; i < 10; i++)
+	for (uint8_t i = 0; i < length; i++)
 	{
 		// If snake value exists then set value
 		if (snake[i].x != -1 && snake[i].y != -1)
@@ -208,12 +193,14 @@ void draw_snake()
 	}
 
 	// Draw apple
-	// led_matrix[7-apple.y] |= (0x80 >> apple.x);
+	led_matrix[7-apple.y] |= (0x80 >> apple.x);
 }
 
 // Move snake in certain direction and marks
 void move_snake(char dir)
 {
+	uint8_t apple_eaten = 0;
+	
 	// Move up
 	if (dir == 'u' && movedir != 'd')
 	{
@@ -226,6 +213,25 @@ void move_snake(char dir)
 		else if (in_snake(head->x, head->y+1))
 		{
 			collide = 2;
+		}
+		// Collide into apple
+		else if (head->x == apple.x && head->y+1 == apple.y)
+		{
+			// Add apple to the head of the snake
+			snake[length].x = apple.x;
+			snake[length].y = apple.y;
+			
+			// Previous head will point to new head
+			head->next = &snake[length];
+			
+			// Set new head
+			head = &snake[length];
+		
+			length++;
+			
+			movedir = 'u';
+			
+			apple_eaten = 1;		
 		}
 		else
 		{
@@ -252,6 +258,25 @@ void move_snake(char dir)
 		{
 			collide = 2;
 		}
+		// Collide into apple
+		else if (head->x == apple.x && head->y-1 == apple.y)
+		{
+			// Add apple to the head of the snake
+			snake[length].x = apple.x;
+			snake[length].y = apple.y;
+			
+			// Previous head will point to new head
+			head->next = &snake[length];
+			
+			// Set new head
+			head = &snake[length];
+		
+			length++;
+			
+			movedir = 'd';
+			
+			apple_eaten = 1;		
+		}
 		else
 		{
 			// Replace tail with point below head
@@ -277,6 +302,25 @@ void move_snake(char dir)
 		{
 			collide = 2;
 		}
+		// Collide into apple
+		else if (head->x+1 == apple.x && head->y == apple.y)
+		{
+			// Add apple to the head of the snake
+			snake[length].x = apple.x;
+			snake[length].y = apple.y;
+			
+			// Previous head will point to new head
+			head->next = &snake[length];
+			
+			// Set new head
+			head = &snake[length];
+		
+			length++;
+			
+			movedir = 'r';
+			
+			apple_eaten = 1;		
+		}		
 		else
 		{
 			// Replace tail with point below head
@@ -302,6 +346,25 @@ void move_snake(char dir)
 		{
 			collide = 2;
 		}
+		// Collide into apple
+		else if (head->x-1 == apple.x && head->y == apple.y)
+		{
+			// Add apple to the head of the snake
+			snake[length].x = apple.x;
+			snake[length].y = apple.y;
+			
+			// Previous head will point to new head
+			head->next = &snake[length];
+			
+			// Set new head
+			head = &snake[length];
+		
+			length++;
+			
+			movedir = 'l';
+			
+			apple_eaten = 1;		
+		}		
 		else
 		{
 			// Replace tail with point below head
@@ -317,6 +380,11 @@ void move_snake(char dir)
 		}
 	}
 
+	if (apple_eaten)
+	{
+		apple_new();
+	}
+
 	// Update image
 	clear_matrix();
 	draw_snake();	
@@ -328,6 +396,8 @@ void automove_init()
 	TCD1.PER = TCD1_AUTOMOVE_PER;
 	TCD1.CTRLA = TC_CLKSEL_DIV1024_gc;
 	TCD1.INTCTRLA = TC_OVFINTLVL_MED_gc;
+	
+	
 }
 
 // Display particular image to LED Matrix
@@ -354,7 +424,44 @@ uint8_t in_snake(int8_t x, int8_t y)
 void apple_init()
 {
 	apple.x = 6;
-	apple.y = 4;
+	apple.y = 3;
+}
+
+// Generates location of new apple
+void apple_new()
+{
+	uint8_t x = TCC0.CNTL & (0b00000111);
+	uint8_t y = (TCC0.CNTL >> 1) & (0b00000111);
+	
+	while ((in_snake(x,y)))
+	{
+		x++;
+		if (x == 8)
+			x = 0;
+		y++;
+		if (y == 8)
+			y = 0;
+	}
+	
+	apple.x = x;
+	apple.y = y;
+}
+
+void display_score(uint8_t score)
+{
+	uint8_t ones = score%10;
+	uint8_t tens = (score/10);
+	
+	uint8_t both_digits[8];
+	
+	for (uint8_t i = 0; i < 8; i++)
+	{
+		uint8_t tens_display = digits[tens][i] << 5;
+		both_digits[i] = tens_display | digits[ones][i];
+	}
+	
+	display_image(both_digits);
+			
 }
 
 // Interrupt service routines
@@ -374,6 +481,7 @@ ISR(TCC0_OVF_vect)
 // Auto-move snake
 ISR(TCD1_OVF_vect)
 {
+	// Preventing from moving into itself
 	if ((input == 'u' && movedir != 'd') || (input == 'd' && movedir != 'u') || (input == 'r' && movedir != 'l') || (input == 'l' && movedir != 'r'))
 		move_snake(input);
 	else

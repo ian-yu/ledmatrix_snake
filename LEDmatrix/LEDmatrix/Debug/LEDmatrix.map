@@ -10,12 +10,13 @@ c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/..
 Allocating common symbols
 Common symbol       size              file
 
-snake               0x28              snake.o
+snake               0x100             snake.o
 length              0x1               snake.o
 tail                0x2               snake.o
 head                0x2               snake.o
 x_axis              0x2               snake.o
 led_matrix          0x8               snake.o
+apple               0x4               snake.o
 y_axis              0x2               snake.o
 movedir             0x1               snake.o
 
@@ -34,7 +35,11 @@ Discarded input sections
  .text          0x00000000        0x0 snake.o
  .data          0x00000000        0x0 snake.o
  .bss           0x00000000        0x0 snake.o
- .text.delay    0x00000000       0x1a snake.o
+ .text.delay    0x00000000       0x1e snake.o
+ .rodata.collide_self_image
+                0x00000000        0x8 snake.o
+ .rodata.collide_wall_image
+                0x00000000        0x8 snake.o
  .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avrxmega7\libgcc.a(_exit.o)
  .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avrxmega7\libgcc.a(_exit.o)
  .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avrxmega7\libgcc.a(_exit.o)
@@ -212,7 +217,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000      0xa34
+.text           0x00000000      0xce4
  *(.vectors)
  .vectors       0x00000000      0x1fc C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/XMEGAA_DFP/1.1.68/gcc/dev/atxmega128a1u/avrxmega7/crtatxmega128a1u.o
                 0x00000000                __vector_default
@@ -419,43 +424,52 @@ END GROUP
  .text.get_direction
                 0x000003c0       0x4c snake.o
                 0x000003c0                get_direction
- .text.snake_init
-                0x0000040c       0x90 snake.o
-                0x0000040c                snake_init
  .text.draw_snake
-                0x0000049c       0x72 snake.o
-                0x0000049c                draw_snake
+                0x0000040c       0xc4 snake.o
+                0x0000040c                draw_snake
  .text.automove_init
-                0x0000050e       0x16 snake.o
-                0x0000050e                automove_init
+                0x000004d0       0x16 snake.o
+                0x000004d0                automove_init
  .text.display_image
-                0x00000524       0x1c snake.o
-                0x00000524                display_image
- .text.main     0x00000540       0x76 snake.o
-                0x00000540                main
+                0x000004e6       0x1c snake.o
+                0x000004e6                display_image
  .text.in_snake
-                0x000005b6       0x46 snake.o
-                0x000005b6                in_snake
+                0x00000502       0x50 snake.o
+                0x00000502                in_snake
+ .text.apple_init
+                0x00000552        0xe snake.o
+                0x00000552                apple_init
+ .text.snake_init
+                0x00000560       0x6a snake.o
+                0x00000560                snake_init
+ .text.apple_new
+                0x000005ca       0x46 snake.o
+                0x000005ca                apple_new
  .text.move_snake
-                0x000005fc      0x288 snake.o
-                0x000005fc                move_snake
+                0x00000610      0x430 snake.o
+                0x00000610                move_snake
+ .text.display_score
+                0x00000a40       0x8c snake.o
+                0x00000a40                display_score
+ .text.main     0x00000acc       0x68 snake.o
+                0x00000acc                main
  .text.__vector_14
-                0x00000884       0x8c snake.o
-                0x00000884                __vector_14
+                0x00000b34       0x8c snake.o
+                0x00000b34                __vector_14
  .text.__vector_83
-                0x00000910       0xb4 snake.o
-                0x00000910                __vector_83
+                0x00000bc0       0xb4 snake.o
+                0x00000bc0                __vector_83
  .text.__vector_71
-                0x000009c4       0x36 snake.o
-                0x000009c4                __vector_71
+                0x00000c74       0x36 snake.o
+                0x00000c74                __vector_71
  .text.__vector_72
-                0x000009fa       0x36 snake.o
-                0x000009fa                __vector_72
-                0x00000a30                . = ALIGN (0x2)
+                0x00000caa       0x36 snake.o
+                0x00000caa                __vector_72
+                0x00000ce0                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x00000a30        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avrxmega7\libgcc.a(_exit.o)
-                0x00000a30                _exit
-                0x00000a30                exit
+ .fini9         0x00000ce0        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avrxmega7\libgcc.a(_exit.o)
+                0x00000ce0                _exit
+                0x00000ce0                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -474,58 +488,56 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x00000a30        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avrxmega7\libgcc.a(_exit.o)
+ .fini0         0x00000ce0        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avrxmega7\libgcc.a(_exit.o)
  *(.fini0)
-                0x00000a34                _etext = .
+                0x00000ce4                _etext = .
 
-.data           0x00802000       0x10 load address 0x00000a34
+.data           0x00802000       0x50 load address 0x00000ce4
                 0x00802000                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
  *(.gnu.linkonce.d*)
  *(.rodata)
  *(.rodata*)
- .rodata.collide_self_image
-                0x00802000        0x8 snake.o
-                0x00802000                collide_self_image
- .rodata.collide_wall_image
-                0x00802008        0x8 snake.o
-                0x00802008                collide_wall_image
+ .rodata.digits
+                0x00802000       0x50 snake.o
+                0x00802000                digits
  *(.gnu.linkonce.r*)
-                0x00802010                . = ALIGN (0x2)
-                0x00802010                _edata = .
-                0x00802010                PROVIDE (__data_end, .)
+                0x00802050                . = ALIGN (0x2)
+                0x00802050                _edata = .
+                0x00802050                PROVIDE (__data_end, .)
 
-.bss            0x00802010       0x3d
-                0x00802010                PROVIDE (__bss_start, .)
+.bss            0x00802050      0x119
+                0x00802050                PROVIDE (__bss_start, .)
  *(.bss)
  *(.bss*)
- .bss.collide   0x00802010        0x1 snake.o
-                0x00802010                collide
- .bss.input     0x00802011        0x1 snake.o
-                0x00802011                input
+ .bss.collide   0x00802050        0x1 snake.o
+                0x00802050                collide
+ .bss.input     0x00802051        0x1 snake.o
+                0x00802051                input
  .bss.row_count
-                0x00802012        0x1 snake.o
-                0x00802012                row_count
+                0x00802052        0x1 snake.o
+                0x00802052                row_count
  *(COMMON)
- COMMON         0x00802013       0x3a snake.o
-                0x00802013                snake
-                0x0080203b                length
-                0x0080203c                tail
-                0x0080203e                head
-                0x00802040                x_axis
-                0x00802042                led_matrix
-                0x0080204a                y_axis
-                0x0080204c                movedir
-                0x0080204d                PROVIDE (__bss_end, .)
-                0x00000a34                __data_load_start = LOADADDR (.data)
-                0x00000a44                __data_load_end = (__data_load_start + SIZEOF (.data))
+ COMMON         0x00802053      0x116 snake.o
+                0x00802053                snake
+                0x00802153                length
+                0x00802154                tail
+                0x00802156                head
+                0x00802158                x_axis
+                0x0080215a                led_matrix
+                0x00802162                apple
+                0x00802166                y_axis
+                0x00802168                movedir
+                0x00802169                PROVIDE (__bss_end, .)
+                0x00000ce4                __data_load_start = LOADADDR (.data)
+                0x00000d34                __data_load_end = (__data_load_start + SIZEOF (.data))
 
-.noinit         0x0080204d        0x0
+.noinit         0x00802169        0x0
                 [!provide]                PROVIDE (__noinit_start, .)
  *(.noinit*)
                 [!provide]                PROVIDE (__noinit_end, .)
-                0x0080204d                _end = .
+                0x00802169                _end = .
                 [!provide]                PROVIDE (__heap_start, .)
 
 .eeprom         0x00810000        0x0
@@ -592,7 +604,7 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x00000000      0x100
+.debug_aranges  0x00000000      0x118
  *(.debug_aranges)
  .debug_aranges
                 0x00000000       0x20 clock.o
@@ -601,55 +613,55 @@ END GROUP
  .debug_aranges
                 0x00000048       0x30 matrix.o
  .debug_aranges
-                0x00000078       0x88 snake.o
+                0x00000078       0xa0 snake.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x6e7e
+.debug_info     0x00000000     0x6fd8
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000     0x3e5a C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/XMEGAA_DFP/1.1.68/gcc/dev/atxmega128a1u/avrxmega7/crtatxmega128a1u.o
  .debug_info    0x00003e5a       0x87 clock.o
  .debug_info    0x00003ee1     0x1040 joystick.o
  .debug_info    0x00004f21      0x8e8 matrix.o
- .debug_info    0x00005809     0x1675 snake.o
+ .debug_info    0x00005809     0x17cf snake.o
 
-.debug_abbrev   0x00000000     0x40a3
+.debug_abbrev   0x00000000     0x40b0
  *(.debug_abbrev)
  .debug_abbrev  0x00000000     0x3b0e C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/XMEGAA_DFP/1.1.68/gcc/dev/atxmega128a1u/avrxmega7/crtatxmega128a1u.o
  .debug_abbrev  0x00003b0e       0x14 clock.o
  .debug_abbrev  0x00003b22      0x135 joystick.o
  .debug_abbrev  0x00003c57      0x128 matrix.o
- .debug_abbrev  0x00003d7f      0x324 snake.o
+ .debug_abbrev  0x00003d7f      0x331 snake.o
 
-.debug_line     0x00000000      0xdfd
+.debug_line     0x00000000      0xfa5
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x3b5 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/XMEGAA_DFP/1.1.68/gcc/dev/atxmega128a1u/avrxmega7/crtatxmega128a1u.o
  .debug_line    0x000003b5       0x94 clock.o
  .debug_line    0x00000449      0x162 joystick.o
  .debug_line    0x000005ab      0x215 matrix.o
- .debug_line    0x000007c0      0x63d snake.o
+ .debug_line    0x000007c0      0x7e5 snake.o
 
-.debug_frame    0x00000000      0x230
+.debug_frame    0x00000000      0x298
  *(.debug_frame)
  .debug_frame   0x00000000       0x34 joystick.o
  .debug_frame   0x00000034       0x44 matrix.o
- .debug_frame   0x00000078      0x1b8 snake.o
+ .debug_frame   0x00000078      0x220 snake.o
 
-.debug_str      0x00000000     0x45b4
+.debug_str      0x00000000     0x460c
  *(.debug_str)
  .debug_str     0x00000000     0x2969 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/XMEGAA_DFP/1.1.68/gcc/dev/atxmega128a1u/avrxmega7/crtatxmega128a1u.o
  .debug_str     0x00002969     0x193a joystick.o
                                0x1989 (size before relaxing)
  .debug_str     0x000042a3      0x17f matrix.o
                                 0x6e6 (size before relaxing)
- .debug_str     0x00004422      0x192 snake.o
-                                0x96e (size before relaxing)
+ .debug_str     0x00004422      0x1ea snake.o
+                                0x9d3 (size before relaxing)
 
-.debug_loc      0x00000000      0x4cd
+.debug_loc      0x00000000      0x761
  *(.debug_loc)
  .debug_loc     0x00000000       0x21 matrix.o
- .debug_loc     0x00000021      0x4ac snake.o
+ .debug_loc     0x00000021      0x740 snake.o
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -669,11 +681,11 @@ END GROUP
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges   0x00000000       0xc8
+.debug_ranges   0x00000000       0xe0
  *(.debug_ranges)
  .debug_ranges  0x00000000       0x18 joystick.o
  .debug_ranges  0x00000018       0x20 matrix.o
- .debug_ranges  0x00000038       0x90 snake.o
+ .debug_ranges  0x00000038       0xa8 snake.o
 
 .debug_macro
  *(.debug_macro)
